@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+
+class SuperAdminMiddleware
+{
+    public function handle(Request $request, Closure $next)
+    {
+        if (!$request->user() || !$request->user()->isSuperAdmin()) {
+            return response()->json([
+                'message' => 'Acesso negado. Apenas Super Administradores podem acessar este recurso.'
+            ], 403);
+        }
+
+        return $next($request);
+    }
+}
+

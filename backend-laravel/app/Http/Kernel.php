@@ -46,6 +46,11 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
+        // Novos middlewares SaaS
+        'superadmin' => \App\Http\Middleware\SuperAdminMiddleware::class,
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'barber' => \App\Http\Middleware\BarberMiddleware::class,
+        'check.company' => \App\Http\Middleware\CheckCompany::class,
     ];
 }
 

@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('specialty')->nullable();
             $table->text('bio')->nullable();
             $table->string('photo')->nullable();
+            $table->decimal('commission_rate', 5, 2)->default(30.00); // % de comissão padrão
             $table->boolean('active')->default(true);
             $table->timestamps();
         });

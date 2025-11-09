@@ -12,11 +12,14 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
+        'company_id',
         'name',
         'email',
         'password',
         'role',
         'phone',
+        'avatar',
+        'status',
     ];
 
     protected $hidden = [
@@ -54,6 +57,33 @@ class User extends Authenticatable
         return $this->hasMany(Notification::class);
     }
 
+    // Novos relacionamentos SaaS
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    public function sales()
+    {
+        return $this->hasMany(Sale::class, 'barber_id');
+    }
+
+    public function purchases()
+    {
+        return $this->hasMany(Sale::class, 'client_id');
+    }
+
+    public function commissions()
+    {
+        return $this->hasMany(Commission::class, 'barber_id');
+    }
+
+    // Métodos de permissão
+    public function isSuperAdmin()
+    {
+        return $this->role === 'super_admin';
+    }
+
     public function isAdmin()
     {
         return $this->role === 'admin';
@@ -67,6 +97,27 @@ class User extends Authenticatable
     public function isCliente()
     {
         return $this->role === 'cliente';
+    }
+
+    // Scopes
+    public function scopeOfCompany($query, $companyId)
+    {
+        return $query->where('company_id', $companyId);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    public function scopeBarbers($query)
+    {
+        return $query->where('role', 'barbeiro');
+    }
+
+    public function scopeClients($query)
+    {
+        return $query->where('role', 'cliente');
     }
 }
 

@@ -1,22 +1,26 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React from 'react';
 import {
   AppBar,
   Toolbar,
   Typography,
-  Button,
   IconButton,
+  Box,
+  Avatar,
   Menu,
   MenuItem,
-  Box,
 } from '@mui/material';
-import { AccountCircle, Menu as MenuIcon } from '@mui/icons-material';
-import { clearAuth, getUser, isAdmin } from '../utils/auth';
+import {
+  Menu as MenuIcon,
+  Notifications as NotificationsIcon,
+  AccountCircle as AccountCircleIcon,
+} from '@mui/icons-material';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
-const Navbar = () => {
+const Navbar = ({ onMenuClick }) => {
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const user = getUser();
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -27,93 +31,87 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    clearAuth();
+    logout();
     navigate('/login');
-    handleClose();
   };
 
   return (
-    <AppBar position="static">
+    <AppBar
+      position="fixed"
+      sx={{
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+        boxShadow: '0 2px 8px rgba(212, 175, 55, 0.1)',
+      }}
+    >
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>
-            Sistema Barbearia
-          </Link>
+        <IconButton
+          color="inherit"
+          aria-label="open drawer"
+          edge="start"
+          onClick={onMenuClick}
+          sx={{ mr: 2, display: { sm: 'none' } }}
+        >
+          <MenuIcon />
+        </IconButton>
+
+        <Typography
+          variant="h6"
+          noWrap
+          component="div"
+          sx={{
+            flexGrow: 1,
+            fontWeight: 700,
+            background: 'linear-gradient(135deg, #D4AF37 0%, #F4CF5E 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+        >
+          BarberShop SaaS
         </Typography>
 
-        {user ? (
-          <>
-            <Button color="inherit" component={Link} to="/agendamentos">
-              Agendamentos
-            </Button>
-            <Button color="inherit" component={Link} to="/servicos">
-              Serviços
-            </Button>
-            <Button color="inherit" component={Link} to="/barbeiros">
-              Barbeiros
-            </Button>
-            {isAdmin() && (
-              <Button color="inherit" component={Link} to="/financeiro">
-                Financeiro
-              </Button>
-            )}
-            {isAdmin() && (
-              <Button color="inherit" component={Link} to="/dashboard/admin">
-                Dashboard
-              </Button>
-            )}
-            {!isAdmin() && (
-              <Button color="inherit" component={Link} to="/dashboard/cliente">
-                Meu Dashboard
-              </Button>
-            )}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <IconButton color="inherit">
+            <NotificationsIcon />
+          </IconButton>
 
-            <IconButton
-              size="large"
-              edge="end"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleMenu}
-              color="inherit"
-            >
-              <AccountCircle />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
+          <IconButton onClick={handleMenu} color="inherit">
+            <Avatar
+              sx={{
+                width: 32,
+                height: 32,
+                bgcolor: 'primary.main',
+                color: 'secondary.main',
               }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
             >
-              <MenuItem onClick={() => { navigate('/perfil'); handleClose(); }}>
-                Perfil
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>Sair</MenuItem>
-            </Menu>
-          </>
-        ) : (
-          <>
-            <Button color="inherit" component={Link} to="/login">
-              Login
-            </Button>
-            <Button color="inherit" component={Link} to="/register">
-              Cadastrar
-            </Button>
-          </>
-        )}
+              {user?.name?.charAt(0).toUpperCase()}
+            </Avatar>
+          </IconButton>
+
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+            <MenuItem onClick={handleClose}>
+              <AccountCircleIcon sx={{ mr: 1 }} />
+              Meu Perfil
+            </MenuItem>
+            <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
+              Sair
+            </MenuItem>
+          </Menu>
+        </Box>
       </Toolbar>
     </AppBar>
   );
 };
 
 export default Navbar;
-
